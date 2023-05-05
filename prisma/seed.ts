@@ -2,7 +2,7 @@ import { PrismaClient, Prisma } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-const userData: Prisma.UserCreateInput[] = [
+let userData: Prisma.UserCreateInput[] = [
   {
     name: 'Alice',
     email: 'alice@prisma.io',
@@ -46,7 +46,23 @@ const userData: Prisma.UserCreateInput[] = [
       ],
     },
   },
-]
+];
+
+function generateMorePosts(userData: Prisma.UserCreateInput) {
+  // @ts-ignore
+  const post = userData.posts.create[0];
+  for (let i = 0; i < 202; i++) {
+    let newPost = {...post};
+    newPost.title = newPost.title + ' ' + i;
+    // @ts-ignore
+    userData.posts.create.push(newPost)
+  }
+}
+
+generateMorePosts(userData[0]);
+generateMorePosts(userData[1]);
+generateMorePosts(userData[2]);
+
 
 async function main() {
   console.log(`Start seeding ...`)
