@@ -4,6 +4,7 @@ import Layout from "../components/Layout";
 import Post, { PostProps } from "../components/Post";
 import { useSession, getSession } from "next-auth/react";
 import prisma from '../lib/prisma'
+import Pagination from "./pagination";
 
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
@@ -50,11 +51,7 @@ const Drafts: React.FC<Props> = (props) => {
       <div className="page">
         <h1>My Drafts</h1>
         <main>
-          {props.drafts.map((post) => (
-            <div key={post.id} className="post">
-              <Post post={post} />
-            </div>
-          ))}
+          <Pagination feed={props.drafts} numberOfPostsPerPage={10}></Pagination>
         </main>
       </div>
       <style jsx>{`

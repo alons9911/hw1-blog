@@ -30,7 +30,7 @@ function generatePaginationArray(pagesNumber: number, currentPage: number, maxSi
       return arr;
 }
 
-const Paging: React.FC<Props> = (props) => {
+const Pagination: React.FC<Props> = (props) => {
     const [currentPage, setCurrentPage] = useState(0);
     const pagesNumber = Math.ceil(props.feed.length / props.numberOfPostsPerPage);
 
@@ -118,4 +118,4 @@ const Paging: React.FC<Props> = (props) => {
     );
 };
 
-export default Paging;
+export default Pagination;

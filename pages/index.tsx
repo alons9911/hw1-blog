@@ -3,7 +3,7 @@ import type { GetServerSideProps } from "next";
 import Layout from "../components/Layout";
 import Post, { PostProps } from "../components/Post";
 import prisma from '../lib/prisma'
-import Paging from "./paging";
+import Pagination from "./pagination";
 
 export const getServerSideProps: GetServerSideProps = async () => {
   const feed = await prisma.post.findMany({
@@ -33,7 +33,7 @@ const Blog: React.FC<Props> = (props) => {
       <div className="page">
         <h1>Public Feed</h1>
         <main>
-          <Paging feed={props.feed} numberOfPostsPerPage={10}></Paging>
+          <Pagination feed={props.feed} numberOfPostsPerPage={10}></Pagination>
         </main>
       </div>
     </Layout>
