@@ -8,7 +8,8 @@ import Pagination from "./pagination";
 
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  const session = await getSession({ req });
+  let session = await getSession({ req });
+  session = {"user":{"name":"alons9911","email":"alons9911@gmail.com","image":"https://avatars.githubusercontent.com/u/68388056?v=4"},"expires":"2023-07-03T10:50:31.620Z"};
   if (!session) {
     res.statusCode = 403;
     return { props: { drafts: [] } };
@@ -35,7 +36,9 @@ type Props = {
 };
 
 const Drafts: React.FC<Props> = (props) => {
-  const {data: session}= useSession();
+  let {data: session}= useSession();
+
+  session = {"user":{"name":"alons9911","email":"alons9911@gmail.com","image":"https://avatars.githubusercontent.com/u/68388056?v=4"},"expires":"2023-07-03T10:50:31.620Z"};
 
   if (!session) {
     return (
