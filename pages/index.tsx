@@ -1,43 +1,55 @@
-import React from "react";
-import type { GetServerSideProps } from "next";
+import React, {useState} from "react";
+import type {GetServerSideProps} from "next";
 import Layout from "../components/Layout";
-import Post, { PostProps } from "../components/Post";
-import prisma from '../lib/prisma'
+import {PostProps} from "../components/Post";
 import Pagination from "./pagination";
+import prisma from "../lib/prisma";
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const feed = await prisma.post.findMany({
-    where: {
-      published: true,
-    },
-    include: {
-      author: {
-        select: {
-          name: true,
+    /*const res = await fetch(`/api/page/1`, {
+        method: "GET",
+        headers: {"Content-Type": "application/json"},
+    });*/
+    const feed = await prisma.post.findMany({
+        where: {
+            published: true,
         },
-      },
-    },
-  });
-  return {
-    props: { feed },
-  };
+        include: {
+            author: {
+                select: {
+                    name: true,
+                },
+            },
+        },
+    });
+    return {
+        props: {feed},
+    };
+/*
+    return await res.json();
+*/
 };
 
 type Props = {
-  feed: PostProps[];
+    feed: PostProps[];
 };
 
 const Blog: React.FC<Props> = (props) => {
-  return (
-    <Layout>
-      <div className="page">
-        <h1>Public Feed</h1>
-        <main>
-          <Pagination feed={props.feed} numberOfPostsPerPage={10}></Pagination>
-        </main>
-      </div>
-    </Layout>
-  );
+    const [currentPage, setCurrentPage] = useState(0);
+    fetch(`/api/page/1`, {
+        method: "GET",
+        headers: {"Content-Type": "application/json"},
+    });
+    return (
+        <Layout>
+            <div className="page">
+                <h1>Public Feed</h1>
+                <main>
+                    <Pagination feed={props.feed} numberOfPostsPerPage={10}></Pagination>
+                </main>
+            </div>
+        </Layout>
+    );
 };
 
 export default Blog;

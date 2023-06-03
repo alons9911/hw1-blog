@@ -59,12 +59,13 @@ function generateMorePosts(userData: Prisma.UserCreateInput) {
   }
 }
 
-generateMorePosts(userData[0]);
-generateMorePosts(userData[1]);
-generateMorePosts(userData[2]);
+
 
 
 async function main() {
+  await generateMorePosts(userData[0]);
+  await generateMorePosts(userData[1]);
+  await generateMorePosts(userData[2]);
   console.log(`Start seeding ...`)
   for (const u of userData) {
     const user = await prisma.user.create({
