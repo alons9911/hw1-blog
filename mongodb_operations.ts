@@ -1,6 +1,6 @@
-
 // @ts-ignore
 import mongoose from "mongoose";
+
 const Video = require('./mongodb_model.ts');
 
 
@@ -17,7 +17,6 @@ export const saveMetadataToMongodb = async (user: string | null | undefined, pos
     })
 
 
-    console.log(video);
     const result = await video.save();
     await mongoose.connection.close();
     return result;
@@ -28,10 +27,23 @@ export const saveMetadataToMongodb = async (user: string | null | undefined, pos
 export const findPost = async (postId: any) => {
     const mongodb_uri: string = process.env.MONGODB_URI != undefined ? process.env.MONGODB_URI : "";
     mongoose.set('strictQuery', false);
-    await mongoose.connect(mongodb_uri);
-
+    await mongoose.connect(mongodb_uri, {connectTimeoutMS: 5000, socketTimeoutMS: 5000});
     const video = await Video.findOne({'post_id': postId});
-    console.log(video);
     await mongoose.connection.close();
     return video;
+}
+
+export const findPosts = async (postIds: number[]) => {
+    const mongodb_uri: string = process.env.MONGODB_URI != undefined ? process.env.MONGODB_URI : "";
+    mongoose.set('strictQuery', false);
+    await mongoose.connect(mongodb_uri, {connectTimeoutMS: 5000, socketTimeoutMS: 5000});
+    const videos = await Video.find({'post_id': {'$in': postIds}});
+
+    await mongoose.connection.close();
+    return videos.reduce(
+        (acc: any, video: any) => {
+            let res = {};
+            res[video.post_id] = video.link;
+            return Object.assign(acc, res);
+        }, {});
 }

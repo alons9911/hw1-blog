@@ -8,7 +8,7 @@ import Post from "../../../components/Post";
 // Required fields in body: title
 // Optional fields in body: content
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
-  let { title, content, session, email} = req.body;
+  let { title, content, session, email, videoUrl} = req.body;
 
   session = {"user":{"name":"alons9911","email":"alons9911@gmail.com","image":"https://avatars.githubusercontent.com/u/68388056?v=4"},"expires":"2023-07-03T10:50:31.620Z"};
   email = "alons9911@gmail.com";
@@ -17,6 +17,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
       data: {
         title: title,
         content: content,
+        videoUrl: videoUrl,
         author: { connect: { email: email } },
       },
     });

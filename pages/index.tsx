@@ -4,13 +4,14 @@ import Layout from "../components/Layout";
 import {PostProps} from "../components/Post";
 import Pagination from "./pagination";
 import prisma from "../lib/prisma";
+import {findPosts} from "../mongodb_operations";
 
 export const getServerSideProps: GetServerSideProps = async () => {
     /*const res = await fetch(`/api/page/1`, {
         method: "GET",
         headers: {"Content-Type": "application/json"},
     });*/
-    const feed = await prisma.post.findMany({
+    let feed = await prisma.post.findMany({
         where: {
             published: true,
         },
@@ -22,6 +23,8 @@ export const getServerSideProps: GetServerSideProps = async () => {
             },
         },
     });
+    const videos = await findPosts(feed.map((post) => post.id));
+    feed = feed.map((post) => Object.assign(post, {videoUrl: videos[post.id]}));
     return {
         props: {feed},
     };
