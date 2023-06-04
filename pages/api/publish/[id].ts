@@ -5,8 +5,7 @@ import prisma from '../../../lib/prisma'
 // PUT /api/publish/:id
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
   const postId = req.query.id;
-  let session = await getSession({ req })
-  session = {"user":{"name":"alons9911","email":"alons9911@gmail.com","image":"https://avatars.githubusercontent.com/u/68388056?v=4"},"expires":"2023-07-03T10:50:31.620Z"};
+  const session = await getSession({ req })
   if (session) {
     const post = await prisma.post.update({
       where: { id: Number(postId) },

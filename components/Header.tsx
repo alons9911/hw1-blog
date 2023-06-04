@@ -8,9 +8,7 @@ const Header: React.FC = () => {
   const isActive: (pathname: string) => boolean = (pathname) =>
     router.pathname === pathname;
 
-  let {data: session, status} = useSession();
-  session = {"user":{"name":"alons9911","email":"alons9911@gmail.com","image":"https://avatars.githubusercontent.com/u/68388056?v=4"},"expires":"2023-07-03T10:50:31.620Z"};
-  status = 'authenticated';
+  const {data: session, status} = useSession();
   let left = (
     <div className="left">
       <Link href="/" legacyBehavior>
@@ -112,7 +110,6 @@ const Header: React.FC = () => {
       </div>
     );
   }
-  session = {"user":{"name":"alons9911","email":"alons9911@gmail.com","image":"https://avatars.githubusercontent.com/u/68388056?v=4"},"expires":"2023-07-03T10:50:31.620Z"};
   if (session) {
     left = (
       <div className="left">

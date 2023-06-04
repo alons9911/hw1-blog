@@ -64,9 +64,7 @@ async function deletePost(id: number): Promise<void> {
 
 const Post: React.FC<PostProps> = (props) => {
 
-    let {data: session, status} = useSession();
-    session = {"user":{"name":"alons9911","email":"alons9911@gmail.com","image":"https://avatars.githubusercontent.com/u/68388056?v=4"},"expires":"2023-07-03T10:50:31.620Z"};
-    status = 'authenticated';
+    const {data: session, status} = useSession();
     if (status === 'loading') {
         return <div>Authenticating ...</div>;
     }

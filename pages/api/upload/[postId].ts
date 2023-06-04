@@ -23,8 +23,7 @@ export const config = {
 // Optional fields in body: content
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
     const postId = req.query.postId;
-    let session = await getSession({req})
-    session = {"user":{"name":"alons9911","email":"alons9911@gmail.com","image":"https://avatars.githubusercontent.com/u/68388056?v=4"},"expires":"2023-07-03T10:50:31.620Z"};
+    const session = await getSession({req})
     if (session) {
         const data = await new Promise((resolve, reject) => {
             const form = new IncomingForm();
