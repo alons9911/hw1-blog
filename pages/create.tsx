@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Layout from "../components/Layout";
 import Router from "next/router";
 import {useSession} from "next-auth/react";
@@ -10,6 +10,9 @@ const Draft: React.FC = () => {
     const {data: session, status} = useSession();
     const [video, setVideo] = useState(null);
     let email = session?.user?.email;
+    const titleRef = useRef(null);
+    useEffect(() => {titleRef.current.focus();}, []);
+
     const submitData = async (e: React.SyntheticEvent) => {
         e.preventDefault();
         try {
@@ -61,11 +64,11 @@ const Draft: React.FC = () => {
                 <form onSubmit={submitData}>
                     <h1>New Draft</h1>
                     <input
-                        autoFocus
-                        onChange={(e) => setTitle(e.target.value)}
+                        onChange={(e) => {setTitle(e.target.value);}}
                         placeholder="Title"
                         type="text"
                         value={title}
+                        ref={titleRef}
                     />
                     <textarea
                         cols={50}

@@ -1,12 +1,10 @@
 import React from "react";
 import {GetServerSideProps} from "next";
 import Layout from "../components/Layout";
-import Post, {PostProps} from "../components/Post";
 import {useSession, getSession} from "next-auth/react";
 import prisma from '../lib/prisma'
 import Pagination from "./pagination";
-import {findPost, findPosts} from "../mongodb_operations";
-import post from "../components/Post";
+
 
 
 export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
@@ -23,34 +21,19 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
         return {props: {drafts: []}};
     }
 
-    let drafts = await prisma.post.findMany({
+    let countDrafts = await prisma.post.count({
         where: {
             author: {email: session.user?.email},
             published: false,
-        },
-        include: {
-            author: {
-                select: {name: true},
-            },
-        },
+        }
     });
-    const videos = await findPosts(drafts.map((post) => post.id));
-    drafts = drafts.map((post) => Object.assign(post, {videoUrl: videos[post.id]}));
-    /*const fullDrafts = await Promise.all(drafts.map(
-        async (post) => {
-            const video = await findPost(post.id);
-            if (video) {
-                return Object.assign(post, {videoUrl: video.url});
-            }
-            return post;
-        }));*/
     return {
-        props: {drafts},
+        props: {countDrafts},
     };
 };
 
 type Props = {
-    drafts: PostProps[];
+    countDrafts: number;
 };
 
 const Drafts: React.FC<Props> = (props) => {
@@ -72,13 +55,24 @@ const Drafts: React.FC<Props> = (props) => {
             </Layout>
         );
     }
+    const query = {
+        where: {
+            author: {email: session.user?.email},
+            published: false,
+        },
+        include: {
+            author: {
+                select: {name: true},
+            },
+        },
+    };
 
     return (
         <Layout>
             <div className="page">
                 <h1>My Drafts</h1>
                 <main>
-                    <Pagination feed={props.drafts} numberOfPostsPerPage={10}></Pagination>
+                    <Pagination totalNumberOfPosts={props.countDrafts} numberOfPostsPerPage={10} query={query}></Pagination>
                 </main>
             </div>
             <style jsx>{`

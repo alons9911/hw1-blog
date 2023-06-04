@@ -1,64 +1,89 @@
 import React, {useState} from "react";
 import Post, {PostProps} from "../components/Post";
+import prisma from "../lib/prisma";
+import {findPosts} from "../mongodb_operations";
 
 type Props = {
-    feed: PostProps[];
     numberOfPostsPerPage: number;
+    query: any;
+    totalNumberOfPosts: number;
 };
 
 function range(start: number, end: number) {
     let rangeArray = [];
-    for(let i = start; i < end; i++) {
+    for (let i = start; i < end; i++) {
         rangeArray.push(i);
     }
     return rangeArray;
 }
 
 function generatePaginationArray(pagesNumber: number, currentPage: number, maxSize: number) {
-      if (pagesNumber <= maxSize){
-          return range(0, pagesNumber);
-      }
-      console.log(currentPage)
-      console.log(pagesNumber)
-      if (currentPage >= pagesNumber - 2){
-          const lower = Math.max(pagesNumber - maxSize , 0);
-          return range(lower, Math.min(lower + maxSize, pagesNumber))
-      }
-      const lower = Math.max(currentPage - maxSize + 3 , 0);
-      let arr : (number | string)[]= range(lower, lower + maxSize - 1);
-      arr.push("...");
-      return arr;
+    if (pagesNumber <= maxSize) {
+        return range(0, pagesNumber);
+    }
+    console.log(currentPage)
+    console.log(pagesNumber)
+    if (currentPage >= pagesNumber - 2) {
+        const lower = Math.max(pagesNumber - maxSize, 0);
+        return range(lower, Math.min(lower + maxSize, pagesNumber))
+    }
+    const lower = Math.max(currentPage - maxSize + 3, 0);
+    let arr: (number | string)[] = range(lower, lower + maxSize - 1);
+    arr.push("...");
+    return arr;
 }
 
 const Pagination: React.FC<Props> = (props) => {
     const [currentPage, setCurrentPage] = useState(0);
-    const pagesNumber = Math.ceil(props.feed.length / props.numberOfPostsPerPage);
+    const [posts, setPosts] = useState([]);
+    const [arePostCalculated, setArePostCalculated] = useState(false);
+    const pagesNumber = Math.ceil(props.totalNumberOfPosts / props.numberOfPostsPerPage);
 
+    const calcPosts = async (pageNumber: number) => {
+        const body = {query: props.query, postsPerPage: props.numberOfPostsPerPage};
+        const res = await fetch(`/api/page/${pageNumber}`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(body),
+        });
+        const posts = await res.json();
+        console.log(posts);
+        console.log(posts.length);
+        setPosts(posts);
+    }
+    if (!arePostCalculated){
+        calcPosts(0).then(() => setArePostCalculated(true));
+    }
 
-    const onClickSpecificPage = (pageNumber: number) => {
+    const goToPage = async (pageNumber: number) => {
         setCurrentPage(pageNumber);
+        await calcPosts(pageNumber);
     };
 
-    const onClickNextPage = () => {
-        setCurrentPage(Math.min(currentPage + 1, pagesNumber - 1));
+    const onClickSpecificPage = async (pageNumber: number) => {
+        await goToPage(pageNumber);
     };
 
-    const onClickPrevPage = () => {
-        setCurrentPage(Math.max(currentPage - 1, 0));
+    const onClickNextPage = async () => {
+        await goToPage(Math.min(currentPage + 1, pagesNumber - 1));
     };
 
-    const onClickGoToFirstPage = () => {
-        setCurrentPage(0);
+    const onClickPrevPage = async () => {
+        await goToPage(Math.max(currentPage - 1, 0));
     };
 
-    const onClickGoToLastPage = () => {
-        setCurrentPage(pagesNumber - 1);
+    const onClickGoToFirstPage = async () => {
+        await goToPage(0);
+    };
+
+    const onClickGoToLastPage = async () => {
+        await goToPage(pagesNumber - 1);
     };
 
     return (
         <div>
             <div>
-                {props.feed.slice(currentPage * props.numberOfPostsPerPage, (currentPage + 1) * props.numberOfPostsPerPage).map((post) => (
+                {posts.map((post) => (
                     <div key={post.id} className="post">
                         <Post post={post}/>
                     </div>
@@ -106,7 +131,8 @@ const Pagination: React.FC<Props> = (props) => {
                 <button onClick={() => onClickPrevPage()}>&lsaquo;</button>
                 {generatePaginationArray(pagesNumber, currentPage, 7).map((pageNumber) => (
                     pageNumber === currentPage ?
-                        <button className="active" onClick={() => onClickSpecificPage(pageNumber)}>{pageNumber + 1}</button> :
+                        <button className="active"
+                                onClick={() => onClickSpecificPage(pageNumber)}>{pageNumber + 1}</button> :
                         pageNumber === '...' ?
                             <button onClick={() => onClickNextPage()}>...</button> :
                             <button onClick={() => onClickSpecificPage(pageNumber)}>{pageNumber + 1}</button>
