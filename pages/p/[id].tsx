@@ -7,6 +7,7 @@ import {PostProps} from "../../components/Post";
 import prisma from '../../lib/prisma'
 import {useSession} from "next-auth/react";
 import {findPost} from "../../mongodb_operations";
+import Video from "../../components/Video";
 
 
 export const getServerSideProps: GetServerSideProps = async ({params}) => {
@@ -22,10 +23,15 @@ export const getServerSideProps: GetServerSideProps = async ({params}) => {
     });
     if (post) {
         const video = await findPost(post.id);
-        console.log(video.link)
+        if (video) {
+            console.log(video.link)
+            return {
+                props: Object.assign((post ?? {author: {name: "Me"}}), {link: video.link})
+            };
+        }
 
         return {
-            props: Object.assign((post ?? {author: {name: "Me"}}), {link: video.link})
+            props: post ?? {author: {name: "Me"}}
         };
     }
 
@@ -57,8 +63,6 @@ async function deletePost(id: number): Promise<void> {
 }
 
 const Post: React.FC<PostProps> = (props) => {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const ref = useRef(null);
 
     let {data: session, status} = useSession();
     session = {"user":{"name":"alons9911","email":"alons9911@gmail.com","image":"https://avatars.githubusercontent.com/u/68388056?v=4"},"expires":"2023-07-03T10:50:31.620Z"};
@@ -68,20 +72,10 @@ const Post: React.FC<PostProps> = (props) => {
     }
     const userHasValidSession = Boolean(session);
     const postBelongsToUser = session?.user?.email === props.author?.email;
+
     let title = props.title;
     if (!props.published) {
         title = `${title} (Draft)`;
-    }
-
-    function handleClick() {
-        const nextIsPlaying = !isPlaying;
-        setIsPlaying(nextIsPlaying);
-
-        if (nextIsPlaying && ref.current !== null) {
-            ref.current.play();
-        } else {
-            ref.current.pause();
-        }
     }
 
     return (
@@ -90,20 +84,7 @@ const Post: React.FC<PostProps> = (props) => {
                 <h2>{title}</h2>
                 <p>By {props?.author?.name || "Unknown author"}</p>
                 <ReactMarkdown children={props.content}/>
-                {props.link !== undefined ? <><button onClick={handleClick}>
-                        {isPlaying ? 'Pause' : 'Play'}
-                    </button><br/>
-                    <video
-                        width="250"
-                        ref={ref}
-                        onPlay={() => setIsPlaying(true)}
-                        onPause={() => setIsPlaying(false)}
-                    >
-                        <source
-                            src={props.link}
-                            type="video/mp4"
-                        />
-                    </video><br/></> : <></>}
+                {props.link ? <Video link={props.link}></Video> : <></>}
                 {!props.published && userHasValidSession && postBelongsToUser && (
                     <button onClick={() => publishPost(props.id)}>Publish</button>
                 )}
