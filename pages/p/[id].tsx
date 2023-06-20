@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {GetServerSideProps} from "next";
 import ReactMarkdown from "react-markdown";
 import Layout from "../../components/Layout";
@@ -8,6 +8,7 @@ import prisma from '../../lib/prisma'
 import {useSession} from "next-auth/react";
 import {findPost} from "../../mongodb_operations";
 import Video from "../../components/Video";
+import Cookies from 'js-cookie';
 
 
 export const getServerSideProps: GetServerSideProps = async ({params}) => {
@@ -65,6 +66,11 @@ async function deletePost(id: number): Promise<void> {
 const Post: React.FC<PostProps> = (props) => {
 
     const {data: session, status} = useSession();
+    const [currentUser, setCurrentUser] = useState();
+    useEffect(() => {
+        const user = Cookies.get('CurrentUser');
+        setCurrentUser(user !== undefined ? JSON.parse(user) : user);
+    });
     if (status === 'loading') {
         return <div>Authenticating ...</div>;
     }

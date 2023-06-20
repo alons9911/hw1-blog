@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import Layout from "../components/Layout";
 import Router from "next/router";
 import {useSession} from "next-auth/react";
+import Cookies from 'js-cookie';
 import post from "../components/Post";
 
 const Draft: React.FC = () => {
@@ -9,14 +10,23 @@ const Draft: React.FC = () => {
     const [content, setContent] = useState("");
     const {data: session, status} = useSession();
     const [video, setVideo] = useState(null);
-    let email = session?.user?.email;
     const titleRef = useRef(null);
-    useEffect(() => {titleRef.current.focus();}, []);
+    const [currentUser, setCurrentUser] = useState();
+    useEffect(() => {
+        const user = Cookies.get('CurrentUser');
+        setCurrentUser(user !== undefined ? JSON.parse(user) : user);
+    });
+    let email = session?.user?.email;
+
+
+    useEffect(() => {
+        titleRef.current.focus();
+    }, []);
 
     const submitData = async (e: React.SyntheticEvent) => {
         e.preventDefault();
         try {
-            const body = {title, content, session, email};
+            const body = {title, content, currentUser, email};
             const res = await fetch(`/api/post`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
@@ -64,7 +74,9 @@ const Draft: React.FC = () => {
                 <form onSubmit={submitData}>
                     <h1>New Draft</h1>
                     <input
-                        onChange={(e) => {setTitle(e.target.value);}}
+                        onChange={(e) => {
+                            setTitle(e.target.value);
+                        }}
                         placeholder="Title"
                         type="text"
                         value={title}

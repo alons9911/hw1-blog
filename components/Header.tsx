@@ -1,22 +1,30 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { signOut, useSession } from "next-auth/react";
+import {useRouter} from "next/router";
+import {signOut, useSession} from "next-auth/react";
+import Cookies from 'js-cookie';
 
 const Header: React.FC = () => {
-  const router = useRouter();
-  const isActive: (pathname: string) => boolean = (pathname) =>
-    router.pathname === pathname;
+    const router = useRouter();
+    const isActive: (pathname: string) => boolean = (pathname) =>
+        router.pathname === pathname;
 
-  const {data: session, status} = useSession();
-  let left = (
-    <div className="left">
-      <Link href="/" legacyBehavior>
-        <a className="bold" data-active={isActive("/")}>
-          Feed
-        </a>
-      </Link>
-      <style jsx>{`
+    const {data: session, status} = useSession();
+    const [currentUser, setCurrentUser] = useState();
+    useEffect(() => {
+        const user = Cookies.get('CurrentUser');
+        setCurrentUser(user !== undefined ? JSON.parse(user) : user);
+    });
+
+
+    let left = (
+        <div className="left">
+            <Link href="/" legacyBehavior>
+                <a className="bold" data-active={isActive("/")}>
+                    Feed
+                </a>
+            </Link>
+            <style jsx>{`
         .bold {
           font-weight: bold;
         }
@@ -35,20 +43,20 @@ const Header: React.FC = () => {
           margin-left: 1rem;
         }
       `}</style>
-    </div>
-  );
+        </div>
+    );
 
-  let right = null;
+    let right = null;
 
-  if (status === 'loading') {
-    left = (
-      <div className="left">
-        <Link href="/" legacyBehavior>
-          <a className="bold" data-active={isActive("/")}>
-            Feed
-          </a>
-        </Link>
-        <style jsx>{`
+    if (status === 'loading') {
+        left = (
+            <div className="left">
+                <Link href="/" legacyBehavior>
+                    <a className="bold" data-active={isActive("/")}>
+                        Feed
+                    </a>
+                </Link>
+                <style jsx>{`
           .bold {
             font-weight: bold;
           }
@@ -67,26 +75,29 @@ const Header: React.FC = () => {
             margin-left: 1rem;
           }
         `}</style>
-      </div>
-    );
-    right = (
-      <div className="right">
-        <p>Validating session ...</p>
-        <style jsx>{`
+            </div>
+        );
+        right = (
+            <div className="right">
+                <p>Validating session ...</p>
+                <style jsx>{`
           .right {
             margin-left: auto;
           }
         `}</style>
-      </div>
-    );
-  }
-  if (!session) {
-    right = (
-      <div className="right">
-        <Link href="/api/auth/signin" legacyBehavior>
-          <a data-active={isActive("/signup")}>Log in</a>
-        </Link>
-        <style jsx>{`
+            </div>
+        );
+    }
+    if (!currentUser) {
+        right = (
+            <div className="right">
+                <Link href="/login" legacyBehavior>
+                    <a data-active={isActive("/signup")}>Log in</a>
+                </Link>
+                <Link href="/signup" legacyBehavior>
+                    <a data-active={isActive("/signup")}>Sign Up</a>
+                </Link>
+                <style jsx>{`
           a {
             text-decoration: none;
             color: #000;
@@ -107,21 +118,21 @@ const Header: React.FC = () => {
             border-radius: 3px;
           }
         `}</style>
-      </div>
-    );
-  }
-  if (session) {
-    left = (
-      <div className="left">
-        <Link href="/" legacyBehavior>
-          <a className="bold" data-active={isActive("/")}>
-            Feed
-          </a>
-        </Link>
-        <Link href="/drafts" legacyBehavior>
-          <a data-active={isActive("/drafts")}>My drafts</a>
-        </Link>
-        <style jsx>{`
+            </div>
+        );
+    }
+    if (currentUser) {
+        left = (
+            <div className="left">
+                <Link href="/" legacyBehavior>
+                    <a className="bold" data-active={isActive("/")}>
+                        Feed
+                    </a>
+                </Link>
+                <Link href="/drafts" legacyBehavior>
+                    <a data-active={isActive("/drafts")}>My drafts</a>
+                </Link>
+                <style jsx>{`
           .bold {
             font-weight: bold;
           }
@@ -140,22 +151,22 @@ const Header: React.FC = () => {
             margin-left: 1rem;
           }
         `}</style>
-      </div>
-    );
-    right = (
-      <div className="right">
-        <p>
-          {session.user?.name} ({session.user?.email})
-        </p>
-        <Link href="/create" legacyBehavior>
-          <button>
-            <a>New post</a>
-          </button>
-        </Link>
-        <button onClick={() => signOut()}>
-          <a>Log out</a>
-        </button>
-        <style jsx>{`
+            </div>
+        );
+        right = (
+            <div className="right">
+                <p>
+                    {currentUser.user?.username} ({currentUser.user?.email})
+                </p>
+                <Link href="/create" legacyBehavior>
+                    <button>
+                        <a>New post</a>
+                    </button>
+                </Link>
+                <button onClick={() => Cookies.remove("CurrentUser")}>
+                    <a>Log out</a>
+                </button>
+                <style jsx>{`
           a {
             text-decoration: none;
             color: #000;
@@ -186,23 +197,23 @@ const Header: React.FC = () => {
             border: none;
           }
         `}</style>
-      </div>
-    );
-  }
+            </div>
+        );
+    }
 
-  return (
-    <nav>
-      {left}
-      {right}
-      <style jsx>{`
+    return (
+        <nav>
+            {left}
+            {right}
+            <style jsx>{`
         nav {
           display: flex;
           padding: 2rem;
           align-items: center;
         }
       `}</style>
-    </nav>
-  );
+        </nav>
+    );
 };
 
 export default Header;

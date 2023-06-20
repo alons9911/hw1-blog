@@ -4,6 +4,8 @@ const prisma = new PrismaClient()
 
 let userData: Prisma.UserCreateInput[] = [
   {
+    username: 'Alice',
+    hash: '6a201185e0e1b7409973c8519ca56914',
     name: 'Alice',
     email: 'alice@prisma.io',
     posts: {
@@ -17,6 +19,8 @@ let userData: Prisma.UserCreateInput[] = [
     },
   },
   {
+    username: 'Nilu',
+    hash: '6a201185e0e1b7409973c8519ca56914',
     name: 'Nilu',
     email: 'nilu@prisma.io',
     posts: {
@@ -30,6 +34,8 @@ let userData: Prisma.UserCreateInput[] = [
     },
   },
   {
+    username: 'Mahmoud',
+    hash: '6a201185e0e1b7409973c8519ca56914',
     name: 'Mahmoud',
     email: 'mahmoud@prisma.io',
     posts: {

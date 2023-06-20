@@ -50,6 +50,7 @@ model Session {
 
 model User {
   id            Int       @id @default(autoincrement())
+  username      String    @unique
   name          String?
   email         String?   @unique
   emailVerified DateTime? @map("email_verified")
@@ -59,6 +60,7 @@ model User {
   posts         Post[]
   accounts      Account[]
   sessions      Session[]
+  hash          String
 
   @@map(name: "users")
 }

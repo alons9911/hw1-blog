@@ -1,14 +1,17 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {GetServerSideProps} from "next";
 import Layout from "../components/Layout";
 import {useSession, getSession} from "next-auth/react";
 import prisma from '../lib/prisma'
 import Pagination from "./pagination";
-
-
+import Cookies from 'js-cookie';
 
 export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
     const session = await getSession({req});
+
+    let currentUser = Cookies.get('CurrentUser');
+    currentUser = currentUser !== undefined ? JSON.parse(currentUser) : currentUser
+
     if (!session) {
         res.statusCode = 403;
         return {props: {drafts: []}};
@@ -16,7 +19,7 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
 
     let countDrafts = await prisma.post.count({
         where: {
-            author: {email: session.user?.email},
+            author: {email: currentUser.user?.email},
             published: false,
         }
     });
@@ -30,8 +33,12 @@ type Props = {
 };
 
 const Drafts: React.FC<Props> = (props) => {
-    const {data: session} = useSession();
-
+    const {data: session, status} = useSession();
+    const [currentUser, setCurrentUser] = useState();
+    useEffect(() => {
+        const user = Cookies.get('CurrentUser');
+        setCurrentUser(user !== undefined ? JSON.parse(user) : user);
+    });
     if (!session) {
         return (
             <Layout>
@@ -57,7 +64,8 @@ const Drafts: React.FC<Props> = (props) => {
             <div className="page">
                 <h1>My Drafts</h1>
                 <main>
-                    <Pagination totalNumberOfPosts={props.countDrafts} numberOfPostsPerPage={10} query={query}></Pagination>
+                    <Pagination totalNumberOfPosts={props.countDrafts} numberOfPostsPerPage={10}
+                                query={query}></Pagination>
                 </main>
             </div>
             <style jsx>{`

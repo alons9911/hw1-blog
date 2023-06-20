@@ -41,7 +41,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             public_id: postId,
         });
 
-        const result = await saveMetadataToMongodb(session.user?.name, postId, response.url);
+        const result = await saveMetadataToMongodb(session.user?.username, postId, response.url);
 
         res.json(response);
     } else {
