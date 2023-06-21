@@ -167,6 +167,11 @@ const Header: React.FC = () => {
                 <p>
                     {currentUser.user?.username} ({currentUser.user?.email})
                 </p>
+                <Link href="/profile" legacyBehavior>
+                    <button>
+                        <a>My Profile</a>
+                    </button>
+                </Link>
                 <Link href="/create" legacyBehavior>
                     <button>
                         <a>New post</a>
