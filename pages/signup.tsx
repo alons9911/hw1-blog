@@ -10,8 +10,30 @@ const Signup: React.FC = () => {
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
 
+    const verify_input = () => {
+        let message = '';
+        if (!username)
+            message += '  - Username must not be empty\n';
+        if (!password)
+            message += '  - Password must not be empty\n';
+        else if (password.length < 8)
+            message += '  - Password must contains a least 8 characters\n';
+        if (!email)
+            message += '  - Email must not be empty\n';
+        if (!name)
+            message += '  - Name must not be empty\n';
+
+        if (message !== '') {
+            alert(`There are some problems or missing information in the form:\n${message}`);
+            return false;
+        }
+        return true;
+    }
+
     const onSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
+        if (!verify_input())
+            return;
         const hash = Md5.hashStr(password);
         const response = await fetch('/api/signup', {
             method: 'POST',
@@ -22,12 +44,14 @@ const Signup: React.FC = () => {
         });
         if (response.ok) {
             console.log('Sign up successful!');
+            alert('Successfully signed up!')
             await Router.push("/login");
 
         } else {
             const errorData = await response.json();
-            const errorMessage = errorData.error;
+            const errorMessage = errorData.message;
             console.log('Sign up failed. Error:', errorMessage);
+            alert(`Sign up failed. Error: ${errorMessage}`)
         }
     }
 
@@ -58,16 +82,8 @@ const Signup: React.FC = () => {
                             id="username"
                             value={username}
                             onChange={onUsernameChange}
-                            //className={errorFlag && errors.username_errors && errors.username_errors.length > 0 ? 'error' : ''}
                             style={{flex: 1, maxWidth: '200px'}}
                         />
-                        {/*errorFlag && errors.username_errors && (
-                            <span className="error-message">
-                {errors.username_errors
-                    .map(error => errors_dict.username_errors[error])
-                    .join(', ')}
-              </span>
-                        )*/}
                     </div>
                     <div style={{display: 'flex', marginBottom: '1rem'}}>
                         <label htmlFor="password" style={{marginRight: '0.5rem', width: '80px'}}>Password:</label>
@@ -76,16 +92,8 @@ const Signup: React.FC = () => {
                             id="password"
                             value={password}
                             onChange={onPasswordChange}
-                            //className={errorFlag && errors.password_errors && errors.password_errors.length > 0 ? 'error' : ''}
                             style={{flex: 1, maxWidth: '200px'}}
                         />
-                        {/*errorFlag && errors.password_errors && (
-                            <span className="error-message">
-                {errors.password_errors
-                    .map(error => errors_dict.password_errors[error])
-                    .join(', ')}
-              </span>
-                        )*/}
                     </div>
                     <div style={{display: 'flex', marginBottom: '1rem'}}>
                         <label htmlFor="email" style={{marginRight: '0.5rem', width: '80px'}}>Email:</label>
@@ -94,16 +102,8 @@ const Signup: React.FC = () => {
                             id="email"
                             value={email}
                             onChange={onEmailChange}
-                            //className={errorFlag && errors.email_errors && errors.email_errors.length > 0 ? 'error' : ''}
                             style={{flex: 1, maxWidth: '200px'}}
                         />
-                        {/*errorFlag && errors.email_errors && (
-                            <span className="error-message">
-                {errors.email_errors
-                    .map(error => errors_dict.email_errors[error])
-                    .join(', ')}
-              </span>
-                        )*/}
                     </div>
                     <div style={{display: 'flex', marginBottom: '1rem'}}>
                         <label htmlFor="name" style={{marginRight: '0.5rem', width: '80px'}}>Name:</label>
@@ -112,23 +112,11 @@ const Signup: React.FC = () => {
                             id="name"
                             value={name}
                             onChange={onNameChange}
-                            //className={errorFlag && errors.name_errors && errors.name_errors.length > 0 ? 'error' : ''}
                             style={{flex: 1, maxWidth: '200px'}}
                         />
-                        {/*errorFlag && errors.name_errors && (
-                            <span className="error-message">
-                {errors.name_errors
-                    .map(error => errors_dict.name_errors[error])
-                    .join(', ')}
-              </span>
-                        )*/}
                     </div>
                     <button type="submit" style={{padding: '0.5rem 1rem', width: '289px'}}>Sign Up</button>
                 </form>
-                <div>
-                    {/* maybe change to alert */}
-                    {/*signupFailMessage*/}
-                </div>
             </div>
 
             <style jsx>{`

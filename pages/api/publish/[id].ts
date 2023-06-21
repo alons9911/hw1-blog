@@ -5,8 +5,10 @@ import prisma from '../../../lib/prisma'
 // PUT /api/publish/:id
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
   const postId = req.query.id;
-  const session = await getSession({ req })
-  if (session) {
+  let currentUser = req.cookies.CurrentUser;
+
+  //const session = await getSession({ req })
+  if (currentUser) {
     const post = await prisma.post.update({
       where: { id: Number(postId) },
       data: { published: true },

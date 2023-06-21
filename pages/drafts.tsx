@@ -5,16 +5,17 @@ import {useSession, getSession} from "next-auth/react";
 import prisma from '../lib/prisma'
 import Pagination from "./pagination";
 import Cookies from 'js-cookie';
+import {useLocation} from "react-router";
 
 export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
-    //const session = await getSession({req});
-
-    let currentUser = Cookies.get('CurrentUser');
-    currentUser = currentUser !== undefined ? JSON.parse(currentUser) : currentUser
+    let currentUser = req.cookies.CurrentUser;
 
     if (!currentUser) {
         res.statusCode = 403;
-        return {props: {drafts: []}};
+        return {props: {countDrafts: 0}};
+    }
+    else{
+        currentUser = JSON.parse(currentUser);
     }
 
     let countDrafts = await prisma.post.count({

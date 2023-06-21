@@ -48,7 +48,6 @@ const Pagination: React.FC<Props> = (props) => {
         }
     });
     const pagesNumber = Math.ceil(props.totalNumberOfPosts / props.numberOfPostsPerPage);
-
     const calcPosts = async (pageNumber: number) => {
         const body = {query: props.query, postsPerPage: props.numberOfPostsPerPage};
         const res = await fetch(`/api/page/${pageNumber}`, {

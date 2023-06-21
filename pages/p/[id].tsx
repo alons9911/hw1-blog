@@ -65,17 +65,21 @@ async function deletePost(id: number): Promise<void> {
 
 const Post: React.FC<PostProps> = (props) => {
 
-    const {data: session, status} = useSession();
+    //const {data: session, status} = useSession();
     const [currentUser, setCurrentUser] = useState();
+    const [isCurrentUserSet, setIsCurrentUserSet] = useState(false);
     useEffect(() => {
-        const user = Cookies.get('CurrentUser');
-        setCurrentUser(user !== undefined ? JSON.parse(user) : user);
+        if (!isCurrentUserSet) {
+            const user = Cookies.get('CurrentUser');
+            setCurrentUser(user !== undefined ? JSON.parse(user) : user);
+            setIsCurrentUserSet(true);
+        }
     });
-    if (status === 'loading') {
+    /*if (status === 'loading') {
         return <div>Authenticating ...</div>;
-    }
-    const userHasValidSession = Boolean(session);
-    const postBelongsToUser = session?.user?.email === props.author?.email;
+    }*/
+    const userHasValidSession = Boolean(currentUser);
+    const postBelongsToUser = currentUser?.user?.email === props.author?.email;
 
     let title = props.title;
     if (!props.published) {

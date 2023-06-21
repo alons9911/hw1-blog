@@ -9,14 +9,19 @@ const Header: React.FC = () => {
     const isActive: (pathname: string) => boolean = (pathname) =>
         router.pathname === pathname;
 
-    const {data: session, status} = useSession();
+    //const {data: session, status} = useSession();
     const [currentUser, setCurrentUser] = useState();
+    const [status, setStatus] = useState('loading');
     const [isCurrentUserSet, setIsCurrentUserSet] = useState(false);
     useEffect(() => {
         if (!isCurrentUserSet) {
             const user = Cookies.get('CurrentUser');
             setCurrentUser(user !== undefined ? JSON.parse(user) : user);
             setIsCurrentUserSet(true);
+            if (user)
+                setStatus('authenticated')
+            else
+                setStatus('unauthenticated')
         }
     });
 
@@ -133,7 +138,7 @@ const Header: React.FC = () => {
                         Feed
                     </a>
                 </Link>
-                <Link href="/drafts" legacyBehavior>
+                <Link href="/drafts" state={{currentUser: currentUser}} legacyBehavior>
                     <a data-active={isActive("/drafts")}>My drafts</a>
                 </Link>
                 <style jsx>{`
@@ -167,7 +172,11 @@ const Header: React.FC = () => {
                         <a>New post</a>
                     </button>
                 </Link>
-                <button onClick={() => Cookies.remove("CurrentUser")}>
+                <button onClick={() => {
+                    Cookies.remove("CurrentUser");
+                    setStatus('unauthenticated');
+                    setCurrentUser(undefined);
+                }}>
                     <a>Log out</a>
                 </button>
                 <style jsx>{`

@@ -18,7 +18,7 @@ export const saveMetadataToMongodb = async (user: string | null | undefined, pos
 
 
     const result = await video.save();
-    await mongoose.connection.close();
+    //await mongoose.connection.close();
     return result;
 
 }
@@ -27,19 +27,19 @@ export const saveMetadataToMongodb = async (user: string | null | undefined, pos
 export const findPost = async (postId: any) => {
     const mongodb_uri: string = process.env.MONGODB_URI != undefined ? process.env.MONGODB_URI : "";
     mongoose.set('strictQuery', false);
-    await mongoose.connect(mongodb_uri, {connectTimeoutMS: 5000, socketTimeoutMS: 5000});
+    await mongoose.connect(mongodb_uri);
     const video = await Video.findOne({'post_id': postId});
-    await mongoose.connection.close();
+    //await mongoose.connection.close();
     return video;
 }
 
 export const findPosts = async (postIds: number[]) => {
     const mongodb_uri: string = process.env.MONGODB_URI != undefined ? process.env.MONGODB_URI : "";
     mongoose.set('strictQuery', false);
-    await mongoose.connect(mongodb_uri, {connectTimeoutMS: 5000, socketTimeoutMS: 5000});
+    await mongoose.connect(mongodb_uri);
     const videos = await Video.find({'post_id': {'$in': postIds}});
 
-    await mongoose.connection.close();
+    //await mongoose.connection.close();
     return videos.reduce(
         (acc: any, video: any) => {
             let res = {};
