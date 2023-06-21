@@ -23,16 +23,17 @@ export const config = {
 // Optional fields in body: content
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
     const postId = req.query.postId;
-    const session = await getSession({req})
-    if (session) {
-        const data = await new Promise((resolve, reject) => {
-            const form = new IncomingForm();
+    //const session = await getSession({req})
+    const data = await new Promise((resolve, reject) => {
+        const form = new IncomingForm();
 
-            form.parse(req, (err: any, fields: any, files: any) => {
-                if (err) return reject(err);
-                resolve({fields, files});
-            });
+        form.parse(req, (err: any, fields: any, files: any) => {
+            if (err) return reject(err);
+            resolve({fields, files});
         });
+    });
+    if (data?.fields?.currentUser) {
+        const currentUser = await JSON.parse(data?.fields?.currentUser);
         const file = data?.files?.inputFile.filepath;
 
         // @ts-ignore
@@ -41,7 +42,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             public_id: postId,
         });
 
-        const result = await saveMetadataToMongodb(session.user?.username, postId, response.url);
+        const result = await saveMetadataToMongodb(currentUser.user?.username, postId, response.url);
 
         res.json(response);
     } else {

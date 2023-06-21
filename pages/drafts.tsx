@@ -7,12 +7,12 @@ import Pagination from "./pagination";
 import Cookies from 'js-cookie';
 
 export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
-    const session = await getSession({req});
+    //const session = await getSession({req});
 
     let currentUser = Cookies.get('CurrentUser');
     currentUser = currentUser !== undefined ? JSON.parse(currentUser) : currentUser
 
-    if (!session) {
+    if (!currentUser) {
         res.statusCode = 403;
         return {props: {drafts: []}};
     }
@@ -33,13 +33,17 @@ type Props = {
 };
 
 const Drafts: React.FC<Props> = (props) => {
-    const {data: session, status} = useSession();
+    //const {data: session, status} = useSession();
     const [currentUser, setCurrentUser] = useState();
+    const [isCurrentUserSet, setIsCurrentUserSet] = useState(false);
     useEffect(() => {
-        const user = Cookies.get('CurrentUser');
-        setCurrentUser(user !== undefined ? JSON.parse(user) : user);
+        if (!isCurrentUserSet) {
+            const user = Cookies.get('CurrentUser');
+            setCurrentUser(user !== undefined ? JSON.parse(user) : user);
+            setIsCurrentUserSet(true);
+        }
     });
-    if (!session) {
+    if (!currentUser) {
         return (
             <Layout>
                 <h1>My Drafts</h1>
@@ -47,9 +51,10 @@ const Drafts: React.FC<Props> = (props) => {
             </Layout>
         );
     }
+    // @ts-ignore
     const query = {
         where: {
-            author: {email: session.user?.email},
+            author: {email: currentUser.user?.email},
             published: false,
         },
         include: {

@@ -8,9 +8,9 @@ import Post from "../../../components/Post";
 // Required fields in body: title
 // Optional fields in body: content
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
-  const { title, content, session, email, videoUrl} = req.body;
+  const { title, content, currentUser, email, videoUrl} = req.body;
 
-  if (session) {
+  if (currentUser) {
     const result = await prisma.post.create({
       data: {
         title: title,

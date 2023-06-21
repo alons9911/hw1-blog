@@ -1,7 +1,8 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import Post, {PostProps} from "../components/Post";
 import prisma from "../lib/prisma";
 import {findPosts} from "../mongodb_operations";
+import Cookies from 'js-cookie';
 
 type Props = {
     numberOfPostsPerPage: number;
@@ -37,6 +38,15 @@ const Pagination: React.FC<Props> = (props) => {
     const [currentPage, setCurrentPage] = useState(0);
     const [posts, setPosts] = useState([]);
     const [arePostCalculated, setArePostCalculated] = useState(false);
+    const [currentUser, setCurrentUser] = useState();
+    const [isCurrentUserSet, setIsCurrentUserSet] = useState(false);
+    useEffect(() => {
+        if (!isCurrentUserSet) {
+            const user = Cookies.get('CurrentUser');
+            setCurrentUser(user !== undefined ? JSON.parse(user) : user);
+            setIsCurrentUserSet(true);
+        }
+    });
     const pagesNumber = Math.ceil(props.totalNumberOfPosts / props.numberOfPostsPerPage);
 
     const calcPosts = async (pageNumber: number) => {

@@ -8,15 +8,19 @@ import post from "../components/Post";
 const Draft: React.FC = () => {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
-    const {data: session, status} = useSession();
     const [video, setVideo] = useState(null);
     const titleRef = useRef(null);
     const [currentUser, setCurrentUser] = useState();
+    const [isCurrentUserSet, setIsCurrentUserSet] = useState(false);
     useEffect(() => {
-        const user = Cookies.get('CurrentUser');
-        setCurrentUser(user !== undefined ? JSON.parse(user) : user);
+        if (!isCurrentUserSet) {
+            const user = Cookies.get('CurrentUser');
+            setCurrentUser(user !== undefined ? JSON.parse(user) : user);
+            setIsCurrentUserSet(true);
+        }
     });
-    let email = session?.user?.email;
+
+    let email = currentUser?.user?.email;
 
 
     useEffect(() => {
@@ -27,6 +31,7 @@ const Draft: React.FC = () => {
         e.preventDefault();
         try {
             const body = {title, content, currentUser, email};
+
             const res = await fetch(`/api/post`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
@@ -37,7 +42,11 @@ const Draft: React.FC = () => {
             if (video !== null) {
                 const formData = new FormData();
                 formData.append('inputFile', video);
+                if (currentUser)
+                    formData.append('currentUser', JSON.stringify(currentUser));
+
                 // @ts-ignore
+
                 const response = await fetch(`/api/upload/${postInfo.id}`, {
                     method: 'POST',
                     body: formData,

@@ -11,9 +11,13 @@ const Header: React.FC = () => {
 
     const {data: session, status} = useSession();
     const [currentUser, setCurrentUser] = useState();
+    const [isCurrentUserSet, setIsCurrentUserSet] = useState(false);
     useEffect(() => {
-        const user = Cookies.get('CurrentUser');
-        setCurrentUser(user !== undefined ? JSON.parse(user) : user);
+        if (!isCurrentUserSet) {
+            const user = Cookies.get('CurrentUser');
+            setCurrentUser(user !== undefined ? JSON.parse(user) : user);
+            setIsCurrentUserSet(true);
+        }
     });
 
 
