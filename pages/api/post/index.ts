@@ -1,4 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { csrf } from "../../../lib/csrf";
+
 import prisma from '../../../lib/prisma'
 import Post from "../../../components/Post";
 
@@ -7,7 +9,7 @@ import Post from "../../../components/Post";
 // POST /api/post
 // Required fields in body: title
 // Optional fields in body: content
-export default async function handle(req: NextApiRequest, res: NextApiResponse) {
+async function handle(req: NextApiRequest, res: NextApiResponse) {
   const { title, content, currentUser, email, videoUrl} = req.body;
 
   if (currentUser) {
@@ -24,3 +26,5 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     res.status(401).send({ message: 'Unauthorized' })
   }
 }
+
+export default csrf(handle);
